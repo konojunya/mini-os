@@ -23,7 +23,7 @@ SECTIONS {
 
   /* 読み書き可能データ領域。初期値が 0 の変数を配置する */
   .bss : ALIGN(4) {
-    _bss = .;
+    __bss = .;
     *(.bss .bss.* .sbss .sbss.*);
     __bss_end = .;
   }
