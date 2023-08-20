@@ -55,6 +55,7 @@ void kernel_main(void)
 
   printf("\n\nHello %s\n", "World!");
   printf("1 + 2 = %d, %x\n", 1 + 2, 0x1234abcd);
+  printf("Hello World! length is: %d\n", strlen("Hello World!"));
 
   for (;;)
   {

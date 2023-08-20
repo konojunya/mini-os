@@ -60,6 +60,22 @@ char *strcpy(char *dst, const char *src)
 }
 
 /**
+ * 文字列の長さを返す
+ * @param s 文字列の先頭アドレス
+ * @return 文字列の長さ
+ */
+size_t strlen(const char *s)
+{
+  size_t len = 0;
+  while (*s++)
+  {
+    len++;
+  }
+
+  return len;
+}
+
+/**
  * 文字列を比較する
  * @param s1 比較する文字列の先頭アドレス
  * @param s2 比較する文字列の先頭アドレス
