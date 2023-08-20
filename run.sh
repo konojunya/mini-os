@@ -19,9 +19,9 @@ CC=/opt/homebrew/opt/llvm/bin/clang
 # -Wl,-Map=kernel.map: マップファイルを出力する。マップファイルとは、リンカがどのようにオブジェクトファイルを結合したかを記録したファイルのこと。
 CFLAGS="-std=c11 -O2 -g3 -Wall -Wextra --target=riscv32 -ffreestanding -nostdlib"
 
-# kernel build
+# C のコンパイル
 $CC $CFLAGS -Wl,-Tkernel.ld -Wl,-Map=kernel.map -o kernel.elf \
-    kernel.c
+    kernel.c common.c
 
 # QEMU boot
 # -machine virt: virtマシンとして起動する。ちなみに -machine '?'オプションで対応している環境を確認できる。

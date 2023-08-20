@@ -1,4 +1,5 @@
 #include "kernel.h"
+#include "common.h"
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint32_t;
@@ -63,17 +64,14 @@ void *memset(void *buf, char c, size_t n)
 
 void kernel_main(void)
 {
-  const char *s = "\n\nHello, world!\n";
-  for (int i = 0; s[i] != "\0"; i++)
-  {
-    putchar(s[i]);
-  }
-
   /**
    * memset を使って.bss領域を 0 で初期化する
    * stack は 0 に向かって伸びるため領域の末尾アドレスを設定する
    */
   memset(__bss, 0, (size_t)__bss_end - (size_t)__bss);
+
+  printf("\n\nHello %s\n", "World!");
+  printf("1 + 2 = %d, %x\n", 1 + 2, 0x1234abcd);
 
   for (;;)
   {
