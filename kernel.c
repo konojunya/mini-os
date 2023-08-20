@@ -1,3 +1,5 @@
+#include "kernel.h"
+
 typedef unsigned char uint8_t;
 typedef unsigned short uint32_t;
 typedef uint32_t size_t;
@@ -11,6 +13,40 @@ typedef uint32_t size_t;
  * __bss がアドレスを返すようにすることでケアレスミスを防ぐ
  */
 extern char __bss[], __bss_end[], __stack_top[];
+
+struct sbiret sbi_call(long arg0, long arg1, long arg2, long arg3, long arg4, long arg5, long fid, long eid)
+{
+  /**
+   * register と __asm__() は指定したレジスタに値を入れるようコンパイラに指示するためのもの
+   */
+  register long a0 __asm__("a0") = arg0;
+  register long a1 __asm__("a1") = arg1;
+  register long a2 __asm__("a2") = arg2;
+  register long a3 __asm__("a3") = arg3;
+  register long a4 __asm__("a4") = arg4;
+  register long a5 __asm__("a5") = arg5;
+  register long a6 __asm__("a6") = fid;
+  register long a7 __asm__("a7") = eid;
+
+  /**
+   * ecall 命令を実行することで、OpenSBI に処理を委譲する
+   * CPUの実行モードがカーネル用（S-Mode）からOpenSBI用（M-Mode）に切り替わる
+   * a0 に格納された値は、OpenSBI が定義するエラーコード
+   * a1 に格納された値は、OpenSBI が定義する返り値
+   */
+  __asm__ __volatile__("ecall"
+                       : "=r"(a0), "=r"(a1)
+                       : "r"(a0), "r"(a1), "r"(a2), "r"(a3), "r"(a4), "r"(a5),
+                         "r"(a6), "r"(a7)
+                       : "memory");
+
+  return (struct sbiret){.error = a0, .value = a1};
+}
+
+void putchar(char ch)
+{
+  sbi_call(ch, 0, 0, 0, 0, 0, 0, 1 /* Console Putchar */);
+}
 
 void *memset(void *buf, char c, size_t n)
 {
@@ -27,6 +63,12 @@ void *memset(void *buf, char c, size_t n)
 
 void kernel_main(void)
 {
+  const char *s = "\n\nHello, world!\n";
+  for (int i = 0; s[i] != "\0"; i++)
+  {
+    putchar(s[i]);
+  }
+
   /**
    * memset を使って.bss領域を 0 で初期化する
    * stack は 0 に向かって伸びるため領域の末尾アドレスを設定する
@@ -34,7 +76,13 @@ void kernel_main(void)
   memset(__bss, 0, (size_t)__bss_end - (size_t)__bss);
 
   for (;;)
-    ;
+  {
+    /**
+     * WFI 命令を実行することで、CPU を停止させる
+     * WFI: Wait For Interrupt
+     */
+    __asm__ __volatile__("wfi");
+  }
 }
 
 /**
