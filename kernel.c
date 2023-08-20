@@ -1,10 +1,6 @@
 #include "kernel.h"
 #include "common.h"
 
-typedef unsigned char uint8_t;
-typedef unsigned short uint32_t;
-typedef uint32_t size_t;
-
 /**
  * boot した時に定義しておいた領域を C に展開する
  *
@@ -47,19 +43,6 @@ struct sbiret sbi_call(long arg0, long arg1, long arg2, long arg3, long arg4, lo
 void putchar(char ch)
 {
   sbi_call(ch, 0, 0, 0, 0, 0, 0, 1 /* Console Putchar */);
-}
-
-void *memset(void *buf, char c, size_t n)
-{
-  // buf を uint8_t のポインタにキャストする
-  uint8_t *p = (uint8_t *)buf;
-
-  // 領域アドレスから n 分のメモリを c で埋める
-  while (n--)
-    *p++ = c;
-
-  // ポインタで値が差し込まれた buf を返す
-  return buf;
 }
 
 void kernel_main(void)
